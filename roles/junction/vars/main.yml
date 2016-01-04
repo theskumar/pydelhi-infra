@@ -1,0 +1,14 @@
+---
+junction_user: vagrant
+junction_db: junction_db
+junction_db_user: junction_db_user
+junction_db_pass: junction_db_pass
+
+email_host_user: email_host_user
+email_host_password: email_host_password
+admins: {"Anuvrat Parashar": "anuvrat@anuvrat.in", "Saurabh Kumar": "thes.kumar@gmail.com"}
+
+junction_hostname: junction_hostname
+google_analytics_id: google_analytics_id
+explara_api_token: explara_api_token
+qr_codes_dir: qr_codes_dir

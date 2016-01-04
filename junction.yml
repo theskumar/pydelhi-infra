@@ -1,0 +1,6 @@
+---
+- hosts: vagrant
+  sudo: true
+
+  roles:
+    - junction
