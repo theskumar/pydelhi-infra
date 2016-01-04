@@ -1,0 +1,92 @@
+import os
+
+from common import SITE_VARIABLES
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '{{ junction_db }}',
+        'USER': '{{ junction_db_user }}',
+        'PASSWORD': '{{ junction_db_pass }}',
+        'HOST': 'localhost',
+    }
+}
+
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEBUG = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST_USER = "{{ email_host_password }}"
+EMAIL_HOST_PASSWORD = '{{ email_host_password }}'
+
+ALLOWED_HOSTS = ['pycon.local.org', 'in.pycon.org', 'pycon.pssi.org.in',
+                 '127.0.0.1', '192.255.1.10']
+
+
+ADMINS = ({%for name, email in admins.items() %}
+       ('{{name}}', '{{email}}'), {% endfor %}
+)
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+
+SOCIALACCOUNT_QUERY_EMAIL = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': ("[%(asctime)s] %(levelname)s "
+                       "[%(module)s:%(name)s:%(lineno)s] %(message)s"),
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+        },
+    }
+}
+
+# SITE_URL = "http://{{ junction_hostname }}/cfp/"
+STATIC_URL = '/cfp/static/'
+MEDIA_URL = '/cfp/m/'
+FORCE_SCRIPT_NAME = '/cfp'
+LOGIN_REDIRECT_URL = FORCE_SCRIPT_NAME
+
+LOGIN_URL = FORCE_SCRIPT_NAME + '/accounts/login/'
+LOGOUT_URL = FORCE_SCRIPT_NAME + '/accounts/logout/'
+
+SITE_VARIABLES.update({
+    'site_name': 'PyDelhi Conference',
+    'site_description': 'Submit and Manage proposals for PyDelhi Conference',
+    'google_analytics_id': '{{ google_analytics_id }}',
+})
+
+EXPLARA_API_TOKEN = '{{ explara_api_token }}'
+QR_CODES_DIR = '{{ qr_codes_dir }}'

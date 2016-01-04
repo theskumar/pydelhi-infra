@@ -1,0 +1,34 @@
+---
+- apt: name={{ item }} state=present
+  with_items:
+    - postgresql
+    - redis-server
+
+# create new user to run everything in a user's premission 
+- group: name={{junction_user}} state=present
+- user: name={{junction_user}} state=present group={{junction_user}} groups=postgres
+- file: path=/srv/junction owner={{ junction_user }} state=directory
+
+- name: clone the project
+  git: repo=https://github.com/pythonindia/junction.git version=master dest=/srv/junction accept_hostkey=true depth=1
+  sudo: true
+
+- pip: name={{ item }} state=present
+  with_items: ['psycopg2', 'virtualenv']
+
+- shell: virtualenv /srv/.venv
+- pip: virtualenv=/srv/.venv/ requirements=/srv/junction/requirements.txt
+
+- postgresql_db: login_user=postgres name={{junction_db}} encoding='UTF-8' lc_collate='en_US.utf8' lc_ctype='en_US.utf8'
+  sudo_user: postgres
+
+- postgresql_user: db={{junction_db}} name={{junction_db_user}} password={{junction_db_pass}}
+  sudo_user: postgres
+
+- template: src=settings.py.j2 dest=/srv/junction/settings/prod.py  owner={{junction_user}} group={{junction_user}} mode=0644
+
+- shell: /srv/.venv/bin/python /srv/junction/manage.py migrate
+
+- template: src=junction_nginx.conf.j2 dest=/etc/nginx/sites-enabled/junction.conf
+
+- template: src=junction_upstart.conf.j2 dest=/etc/init/junction_uwsgi.conf

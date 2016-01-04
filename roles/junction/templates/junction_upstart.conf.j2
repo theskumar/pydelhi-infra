@@ -1,0 +1,17 @@
+description "CFP Junction application service"
+author      "PSSI Devs"
+
+start       on     startup
+stop        on     shutdown
+respawn
+
+setuid  {{junction_user}}
+
+script
+    chdir /srv/junction
+    export DJANGO_SETTINGS_MODULE="settings"
+    export SITE_NAME="PyDelhi Conf"
+    export LANG="en_US.UTF-8"
+    export PORT=8902
+    exec /srv/.venv/bin/uwsgi --ini /srv/junction/uwsgi.ini
+end script
