@@ -4,16 +4,30 @@
   apt_key:
     keyserver: hkp://p80.pool.sks-keyservers.net:80
     id: 58118E89F3A912897C070ADBF76221572C52609D
+  tags:
+    - configure
 
 - name: add docker apt repository
   apt_repository:
     repo: deb https://apt.dockerproject.org/repo ubuntu-trusty main
     update_cache: yes
+  tags:
+    - configure
 
 - name: ensure docker and dependencies are installed
   apt: name=docker-engine update_cache=yes
+  tags:
+    - configure
 
 - service: name=docker state=restarted
+  tags:
+    - configure
+
+- name: Install Docker py
+  pip:
+    name: docker-py
+  tags:
+    - configure
 
 - name: create /srv/znc dir and give permission
   file: path=/srv/znc owner={{ ansible_ssh_user }} group={{ ansible_ssh_user }} mode=0775 state=directory recurse=yes
@@ -31,14 +45,6 @@
   template: src=Dockerfile dest=/srv/znc/Dockerfile
   tags:
     - configure
-    - deploy
-
-- name: Copy ZNC conf
-  template: src=znc.conf.j2 dest=/srv/znc/znc.conf
-  environment:
-    ZNC_ADMIN_PASS_HASH: "{{ lookup('env', 'ZNC_ADMIN_PASS_HASH') }}"
-  tags:
-    - configure
 
 - name: Copy ZNC conf
   template: src=znc.conf.j2 dest=~/.znc/configs/znc.conf
@@ -47,16 +53,26 @@
   tags:
     - configure
 
-- name: Install Docker py
-  pip:
-    name: docker-py
-
 - name: build image
   docker_image: >
     name="curiouslearner/znc"
     tag="0.1"
     path="/srv/znc"
     state=build
+  tags:
+    - configure
+
+- name: Stop running ZNC instance
+  shell: docker stop pydelhi_znc
+  sudo: yes
+  tags:
+    - deploy
+
+- name: Remove stopped ZNC instance
+  shell: docker rm pydelhi_znc
+  sudo: yes
+  tags:
+    - deploy
 
 - name: Run ZNC instance
   shell: docker run --name pydelhi_znc -d -p 36697:6697 -v ~/.znc:/znc-data curiouslearner/znc:0.1
