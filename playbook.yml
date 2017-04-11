@@ -7,3 +7,4 @@
   - nginx_redirects
   - retweet_bot
   - mumble-server
+  - znc_docker
