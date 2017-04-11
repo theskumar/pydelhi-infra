@@ -69,5 +69,8 @@ Vagrant.configure(2) do |config|
     ansible.inventory_path = "hosts"
     ansible.verbose = "vvv"
     ansible.limit = "vagrant"
+    ansible.extra_vars = {
+      ZNC_ADMIN_PASS_HASH: "sha256#0be7da92c5c868ed70c76629610b6b6791bf17a89ce46bcb7ee91b058da96928#x56AIGENv2nr3_7G:xrn#"
+    }
   end
 end
